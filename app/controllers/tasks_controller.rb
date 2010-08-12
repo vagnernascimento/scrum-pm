@@ -28,12 +28,13 @@ class TasksController < ApplicationController
       @issue_count = @query.issue_count
       @issue_pages = Paginator.new self, @issue_count, limit, params['page']
       @issues = @query.issues(:include => [:assigned_to, :tracker, :priority, :category, :fixed_version],
-                              :order => sort_clause, 
-                              :offset => @issue_pages.current.offset, 
+                              :conditions => ["issue_statuses.is_closed = ? AND user_story_id is NULL", false],
+                              :order => sort_clause,
+                              :offset => @issue_pages.current.offset,
                               :limit => limit)
       @issue_count_by_group = @query.issue_count_by_group
-#      @unassigned_tasks = Issue.find(:all, :joins => :status,
-#             :conditions => ["issue_statuses.is_closed = ? AND user_story_id IS NULL AND project_id = ?", false, @project.id ])
+  #    @unassigned_tasks = Issue.find(:all, :joins => :status,
+  #           :conditions => ["issue_statuses.is_closed = ? AND user_story_id IS NULL AND project_id = ?", false, @project.id ])
       @unassigned_tasks = @issues
       @issue_statuses = IssueStatus.find(:all)
       @project_users = User.find(:all, :joins => :members, :conditions => ["members.project_id = ?", @project.id])
